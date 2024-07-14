@@ -6,7 +6,7 @@
 
 <script>
 // import data from './data.json';
-import data from './10year.json';
+import data from './10yearAll.json';
 console.log(data)
 
 export default {
@@ -27,7 +27,7 @@ export default {
       // const arr = Object.keys(this.highData[0])
       // const data = this.highData
       // //定义表头
-      let str = `thscode,time,open,close,openInterest,volume\n`;
+      let str = `thscode,time,open,close,high,low,openInterest,volume\n`;
       // //增加\t为了不让表格显示科学计数法或者其他格式
       // for(let i = 0 ; i < data.length ; i++ ){
       //   // for(let item in data[i]){
@@ -47,6 +47,8 @@ export default {
           str += item['time'] + '\t,'
           str += item['open'] + '\t,'
           str += item['close'] + '\t,'
+          str += item['high'] + '\t,'
+          str += item['low'] + '\t,'
           str += item['open_interest'] + '\t,'
           str += item['volume'] + '\n'
         })

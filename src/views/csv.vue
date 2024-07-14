@@ -3,9 +3,7 @@
     <input type="file" id="excel" multiple />
     
     <el-form :inline="true" class="demo-form-inline">
-      <el-form-item label="跳空幅度">
-        <el-input type="number" v-model="jmp"></el-input>
-      </el-form-item>
+      
       <!-- <el-form-item label="昨日涨跌">
         <el-switch
           v-model="isHigh"
@@ -19,27 +17,33 @@
       <el-form-item label="昨日涨幅">
         <el-input type="number" v-model="lastDay"></el-input>
       </el-form-item>
+      <el-form-item label="跳空幅度">
+        <el-input type="number" v-model="jmp"></el-input>
+      </el-form-item>
+      <el-form-item label="止损阈值">
+        <el-input type="number" v-model="stop"></el-input>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="getHighJmp">分析数据</el-button>
       </el-form-item>
     </el-form>
     <div>
-      <div>涨大高多:{{ 涨大高多 }}|||{{涨大高多num}}</div>
-      <div>涨大高空:{{ 涨大高空 }}|||{{涨大高空num}}</div>
-      <div>涨小高多:{{ 涨小高多 }}|||{{涨小高多num}}</div>
-      <div>涨小高空:{{ 涨小高空 }}|||{{涨小高空num}}</div>
-      <div style="color: red;">跌大高多:{{ 跌大高多 }}|||{{跌大高多num}}</div>
-      <div>跌大高空:{{ 跌大高空 }}|||{{跌大高空num}}</div>
-      <div>跌小高多:{{ 跌小高多 }}|||{{跌小高多num}}</div>
-      <div>跌小高空:{{ 跌小高空 }}|||{{跌小高空num}}</div>
-      <div>涨大低多:{{ 涨大低多 }}|||{{涨大低多num}}</div>
-      <div>涨大低空:{{ 涨大低空 }}|||{{涨大低空num}}</div>
-      <div>涨小低多:{{ 涨小低多 }}|||{{涨小低多num}}</div>
-      <div>涨小低空:{{ 涨小低空 }}|||{{涨小低空num}}</div>
-      <div>跌大低多:{{ 跌大低多 }}|||{{跌大低多num}}</div>
-      <div>跌大低空:{{ 跌大低空 }}|||{{跌大低空num}}</div>
-      <div>跌小低多:{{ 跌小低多 }}|||{{跌小低多num}}</div>
-      <div>跌小低空:{{ 跌小低空 }}|||{{跌小低空num}}</div>
+      <div>涨大高多:{{ 涨大高多 | numf }}|||{{涨大高多num}}</div>
+      <div>涨大高空:{{ 涨大高空 | numf }}|||{{涨大高空num}}</div>
+      <div>涨小高多:{{ 涨小高多 | numf }}|||{{涨小高多num}}</div>
+      <div>涨小高空:{{ 涨小高空 | numf }}|||{{涨小高空num}}</div>
+      <div>跌大高多:{{ 跌大高多 | numf }}|||{{跌大高多num}}</div>
+      <div>跌大高空:{{ 跌大高空 | numf }}|||{{跌大高空num}}</div>
+      <div>跌小高多:{{ 跌小高多 | numf }}|||{{跌小高多num}}</div>
+      <div>跌小高空:{{ 跌小高空 | numf }}|||{{跌小高空num}}</div>
+      <div>涨大低多:{{ 涨大低多 | numf }}|||{{涨大低多num}}</div>
+      <div>涨大低空:{{ 涨大低空 | numf }}|||{{涨大低空num}}</div>
+      <div>涨小低多:{{ 涨小低多 | numf }}|||{{涨小低多num}}</div>
+      <div>涨小低空:{{ 涨小低空 | numf }}|||{{涨小低空num}}</div>
+      <div style="color: red;">跌大低多:{{ 跌大低多 | numf }}|||{{跌大低多num}}</div>
+      <div>跌大低空:{{ 跌大低空 | numf }}|||{{跌大低空num}}</div>
+      <div>跌小低多:{{ 跌小低多 | numf }}|||{{跌小低多num}}</div>
+      <div>跌小低空:{{ 跌小低空 | numf }}|||{{跌小低空num}}</div>
     </div>
 
     <el-table
@@ -70,7 +74,7 @@
         </template>
       </el-table-column>
     </el-table>
-    跌大高:
+    <!-- 跌大高:
     <div>
       <div>
         title:
@@ -86,7 +90,7 @@
           }).length }}
         </span>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -99,7 +103,7 @@ export default {
 
   data() {
     return {
-      year: 2014,
+      year: null,
       data:[1],
       highData: [],
       lowData: [],
@@ -108,6 +112,7 @@ export default {
       jmp: 0.01, // 跳空幅度
       // isHigh: true, // 昨日涨跌
       lastDay: 0.01, // 昨日涨幅
+      stop: 0.02, // 止损阈值
 
       // highHighAdd: 0, // 高开做多
       // highHighCut: 0, // 高开做多
@@ -191,6 +196,29 @@ export default {
       return o;
     }
   },
+  filters: {
+    numf: (val, fix = 2) => {
+      if (val !== 0) {
+        val = Number(val) // 字符串转为数字，目标数据为数字可不转
+        val = '' + val.toFixed(2) // 保留两位小数并转为字符串
+        let int = val.slice(0, fix * -1 - 1) // 获取整数
+        let ext = val.slice(fix * -1 - 1) // 获取到小数
+        int = int.split('').reverse().join('') // 翻转整数
+        let temp = '' // 临时变量
+        for (let i = 0; i < int.length; i++) {
+          temp += int[i]
+          if ((i + 1) % 3 === 0 && i !== int.length - 1) {
+            temp += ',' // 每隔3个数字拼接一个逗号
+          }
+        }
+        temp = temp.split('').reverse().join('') // 加完逗号之后翻转
+        temp = temp + ext // 整数小数拼接
+        return temp // 返回
+      } else {
+        return val
+      }
+    }
+ },
 
   methods: {
     getHighJmp () {
@@ -237,9 +265,11 @@ export default {
           item.openInterest < 5000 || // 不活跃 // 国际铜成交量不足10000
           item.openInterest > this.data[index - 1].openInterest * 1.3 // 持仓量大幅增加说明是主力合约换月
         ) return
-        // if (this.year && dayjs(item.time).format('YYYY') != this.year) return // 限制年份
-        if (this.year && dayjs(item.time).format('YYYY') < 2020 || dayjs(item.time).format('YYYY')>2022) return // 限制年份
-
+        if (this.year && dayjs(item.time).format('YYYY') != this.year 
+          // || new Date(item.time) < new Date('2015-7-1')
+        ) return // 限制年份
+        // if (this.year && dayjs(item.time).format('YYYY') < 2020 || dayjs(item.time).format('YYYY')>2022) return // 限制年份
+        // if (item.thscode !== 'I9999') return
         // 涨大高
         if (item.open>this.data[index - 1].close * (1 + this.jmp*1) // 跳空高开jmp的幅度
         // && this.data[index - 1].close > this.data[index - 1].open *1 // 前一天是上涨 
@@ -247,17 +277,17 @@ export default {
         ) {
           // sum += item.close/item.open - 1
           // + 为做多 - 为做空
-          this.涨大高多 *= 1 + (item.close/item.open - 1)*5
-          this.涨大高空 *= 1 - (item.close/item.open - 1)*5
+          this.涨大高多 *= 1 + (item.low/item.open - 1 < -this.stop ? -0.05 : (item.close/item.open - 1)*5)
+          this.涨大高空 *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)
           this.涨大高多num += 1
           this.涨大高空num += 1
           // 补仓
           // if (item.high/item.open < 1.01) {
-          //   sum *= 1 - (item.close/item.open - 1)*5*0.3
+          //   sum *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)*0.3
           // } else if (item.high/item.open < 1.02 && item.high/item.open >= 1.01) {
-          //   sum *= 1 - (item.close/item.open - 1)*5*0.6
+          //   sum *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)*0.6
           // } else if (item.high/item.open < 1.03 && item.high/item.open >= 1.02) {
-          //   sum *= 1 - (item.close/item.open - 1)*5*0.9
+          //   sum *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)*0.9
           // } else {
           //   sum *= 1 - (0.03)*5*0.9
           // }
@@ -273,8 +303,8 @@ export default {
         && this.data[index - 1].close < this.data[index - 1].open *(1 + this.lastDay*1)
         // && this.data[index - 1].close > this.data[index - 1].open *(1 + 0.005)
         ) {
-          this.涨小高多 *= 1 + (item.close/item.open - 1)*5
-          this.涨小高空 *= 1 - (item.close/item.open - 1)*5
+          this.涨小高多 *= 1 + (item.low/item.open - 1 < -this.stop ? -0.05 : (item.close/item.open - 1)*5)
+          this.涨小高空 *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)
           this.涨小高多num += 1
           this.涨小高空num += 1
         }
@@ -285,24 +315,18 @@ export default {
         && this.data[index - 1].close < this.data[index - 1].open *1
         && this.data[index - 1].close < this.data[index - 1].open *(1 - this.lastDay*1)
         ) {
-          this.跌大高多 *= 1 + (item.close/item.open - 1)*5
-          this.跌大高空 *= 1 - (item.close/item.open - 1)*5
+          this.跌大高多 *= 1 + (item.low/item.open - 1 < -this.stop ? -0.05 : (item.close/item.open - 1)*5)
+          this.跌大高空 *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)
           this.跌大高多num += 1
           this.跌大高空num += 1
-          if (item.close/item.open > 0.99) {
-            this.highData.push({
-              ...item,
-              time: dayjs(item.time).format('YYYY-MM-DD')
-            })
-          }
         }
         // 跌小高
         if (item.open>this.data[index - 1].close * (1 + this.jmp*1) // 跳空高开jmp的幅度
         && this.data[index - 1].close < this.data[index - 1].open *1
         && this.data[index - 1].close > this.data[index - 1].open *(1 - this.lastDay*1)
         ) {
-          this.跌小高多 *= 1 + (item.close/item.open - 1)*5
-          this.跌小高空 *= 1 - (item.close/item.open - 1)*5
+          this.跌小高多 *= 1 + (item.low/item.open - 1 < -this.stop ? -0.05 : (item.close/item.open - 1)*5)
+          this.跌小高空 *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)
           this.跌小高多num += 1
           this.跌小高空num += 1
         }
@@ -311,18 +335,19 @@ export default {
         && this.data[index - 1].close > this.data[index - 1].open *1 // 前一天是上涨 
         && this.data[index - 1].close > this.data[index - 1].open *(1 + this.lastDay*1)
         ) {
-          this.涨大低多 *= 1 + (item.close/item.open - 1)*5
-          this.涨大低空 *= 1 - (item.close/item.open - 1)*5
+          this.涨大低多 *= 1 + (item.low/item.open - 1 < -this.stop ? -0.05 : (item.close/item.open - 1)*5)
+          this.涨大低空 *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)
           this.涨大低多num += 1
           this.涨大低空num += 1
+
         }
         // 涨小低
         if (item.open<this.data[index - 1].close * (1 - this.jmp*1) // 跳空高开jmp的幅度
         && this.data[index - 1].close > this.data[index - 1].open *1 // 前一天是上涨 
         && this.data[index - 1].close < this.data[index - 1].open *(1 + this.lastDay*1)
         ) {
-          this.涨小低多 *= 1 + (item.close/item.open - 1)*5
-          this.涨小低空 *= 1 - (item.close/item.open - 1)*5
+          this.涨小低多 *= 1 + (item.low/item.open - 1 < -this.stop ? -0.05 : (item.close/item.open - 1)*5)
+          this.涨小低空 *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)
           this.涨小低多num += 1
           this.涨小低空num += 1
         }
@@ -331,18 +356,23 @@ export default {
         && this.data[index - 1].close < this.data[index - 1].open *1
         && this.data[index - 1].close < this.data[index - 1].open *(1 - this.lastDay*1)
         ) {
-          this.跌大低多 *= 1 + (item.close/item.open - 1)*5
-          this.跌大低空 *= 1 - (item.close/item.open - 1)*5
+          this.跌大低多 *= 1 + (item.low/item.open - 1 < -this.stop ? -0.05 : (item.close/item.open - 1)*5)
+          this.跌大低空 *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)
           this.跌大低多num += 1
           this.跌大低空num += 1
+
+          this.highData.push({
+            ...item,
+            time: dayjs(item.time).format('YYYY-MM-DD')
+          })
         }
         // 跌小低
         if (item.open<this.data[index - 1].close * (1 - this.jmp*1) // 跳空高开jmp的幅度
         && this.data[index - 1].close < this.data[index - 1].open *1
         && this.data[index - 1].close > this.data[index - 1].open *(1 - this.lastDay*1)
         ) {
-          this.跌小低多 *= 1 + (item.close/item.open - 1)*5
-          this.跌小低空 *= 1 - (item.close/item.open - 1)*5
+          this.跌小低多 *= 1 + (item.low/item.open - 1 < -this.stop ? -0.05 : (item.close/item.open - 1)*5)
+          this.跌小低空 *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)
           this.跌小低多num += 1
           this.跌小低空num += 1
         }
@@ -360,7 +390,7 @@ export default {
         //     // && item.number != 648
         //   ) {
         //     // console.log(item.open)
-        //     // sum *= 1 - (item.close/item.open - 1)*5
+        //     // sum *= 1 - (item.high/item.open - 1 > this.stop ? 0.05 : (item.close/item.open - 1)*5)
         //   }
           
           
@@ -372,23 +402,38 @@ export default {
         // }
       })
 
-      console.log(999999, this.highData.length, sum)
-      console.log(this.涨大高多)
-      console.log(this.涨大高空)
-      console.log(this.涨小高多)
-      console.log(this.涨小高空)
-      console.log(this.跌大高多)
-      console.log(this.跌大高空)
-      console.log(this.跌小高多)
-      console.log(this.跌小高空)
-      console.log(this.涨大低多)
-      console.log(this.涨大低空)
-      console.log(this.涨小低多)
-      console.log(this.涨小低空)
-      console.log(this.跌大低多)
-      console.log(this.跌大低空)
-      console.log(this.跌小低多)
-      console.log(this.跌小低空)
+      // console.log(999999, this.highData.length, sum)
+      // console.log(this.涨大高多)
+      // console.log(this.涨大高空)
+      // console.log(this.涨小高多)
+      // console.log(this.涨小高空)
+      // console.log(this.跌大高多)
+      // console.log(this.跌大高空)
+      // console.log(this.跌小高多)
+      // console.log(this.跌小高空)
+      // console.log(this.涨大低多)
+      // console.log(this.涨大低空)
+      // console.log(this.涨小低多)
+      // console.log(this.涨小低空)
+      // console.log(this.跌大低多)
+      // console.log(this.跌大低空)
+      // console.log(this.跌小低多)
+      // console.log(this.跌小低空)
+
+
+      let all跌大低多 = Object.groupBy(this.highData, ({ thscode }) => thscode)
+      console.log(all跌大低多)
+      let shouyi = {}
+      for (let key in all跌大低多) {
+        shouyi[key] ? '' : shouyi[key] = { m: 1, num: 0 }
+        all跌大低多[key].forEach(item => {
+          shouyi[key].m *= 1 + (item.low/item.open - 1 < -this.stop ? -0.05 : (item.close/item.open - 1)*5)
+          shouyi[key].num += 1 
+        })
+        // shouyi[key] *= 1 + (all跌大低多[key].low/all跌大低多[key].open - 1 < -this.stop ? -0.05 : (all跌大低多[key].close/all跌大低多[key].open - 1)*5)
+      }
+      console.log(shouyi)
+
       //encodeURIComponent解决中文乱码
       // let uri = 'data:text/csv;charset=utf-8,\ufeff' + encodeURIComponent(str);
       // //通过创建a标签实现
