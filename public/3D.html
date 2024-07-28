@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Scatter Plot</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+      #plot {
+        display: block;
+        width: 1300px;
+        height: 1000px;
+      }
+    </style>
+</head>
+<body>
+    <div id="plot"></div>
+    <script>
+        // 生成所有可能的x, y, z组合
+        const x = [];
+        const y = [];
+        const z = [];
+        const results = [];
+
+        for (let i = 0; i <= 3; i++) {
+            for (let j = 0; j <= 3; j++) {
+                for (let k = 0; k <= 3; k++) {
+                    x.push(i*0.01);
+                    y.push(j*0.01);
+                    z.push(k*0.01);
+                    // results.push(`Result: ${i}${j}${k}`); // 这是一个示例结果
+                    results.push({
+                      x: i,
+                      y: j,
+                      z: k
+                    }); // 这是一个示例结果
+
+                    // colors.push()
+                }
+            }
+        }
+
+        // 创建3D散点图
+        const trace = {
+            x: x,
+            y: y,
+            z: z,
+            result: results,
+            mode: 'markers',
+            marker: {
+                size: 6,
+                color: x,
+                colorscale: 'Viridis',
+                showscale: true
+            },
+            text: results,
+            type: 'scatter3d'
+        };
+
+        const data = [trace];
+        const layout = {
+            title: '3D Scatter Plot of x, y, z combinations',
+            scene: {
+                xaxis: { title: '昨日涨幅' },
+                yaxis: { title: '今日跳空' },
+                zaxis: { title: '止损' }
+            }
+        };
+
+        Plotly.newPlot('plot', data, layout);
+
+        document.getElementById('plot').on('plotly_click', (data) => {
+            console.log(data)
+          const point = data.points[0].fulldata.result;
+        //   const text = point.text;
+          alert(`You clicked on:\n${point}`);
+        });
+    </script>
+</body>
+</html>
