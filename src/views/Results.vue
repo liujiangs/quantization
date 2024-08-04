@@ -52,12 +52,12 @@ export default {
       ////
       for (let i = -5; i <= 4; i++) {
           for (let j = -5; j <= 4; j++) {
-              for (let k = -5; k <= 4; k++) {
-      // 
+              for (let k = -2; k <= 2; k++) {
       // for (let i = -1; i <= 1; i++) {
       //     for (let j = -1; j <= 1; j++) {
       //         for (let k = -1; k <= 1; k++) {
                 setTimeout(() => {
+                  if (k === 0) return
                   this.x.push(i*0.01);
                   this.y.push(j*0.01);
                   this.z.push(k*0.01);
@@ -100,29 +100,29 @@ export default {
               this.colors.push('#F00')
               break;
             case Math.pow(profit, 1/times) > 1.07:
-              this.colors.push('#6B2737')
+              this.colors.push('#FF00E0')
               break;
             case Math.pow(profit, 1/times) > 1.05:
-              this.colors.push('#36C9C6')
+              this.colors.push('#B400FF')
               break;
             case Math.pow(profit, 1/times) > 1.03:
-              this.colors.push('#F9F871')
+              this.colors.push('#3300FF')
               break;
             case Math.pow(profit, 1/times) > 1.02:
-              this.colors.push('#F0A202')
+              this.colors.push('#00A1FF')
               break;
             case Math.pow(profit, 1/times) > 1.01:
-              this.colors.push('#FF6B6B')
+              this.colors.push('#00FFFF')
               break;
             case Math.pow(profit, 1/times) < 1:
-              this.colors.push('#000000')
+              this.colors.push('#00FF00')
               break;
             default:
-              this.colors.push('#FFF')
+              this.colors.push('#FFFF00')
               break;
           }
           ////
-          if (lastDay===0.04 && jmp===0.04 && stop===0.04) {
+          if (lastDay===0.04 && jmp===0.04 && stop===0.02) {
           // if (lastDay===0.01 && jmp===0.01 && stop===0.01) {
             alert('数据计算完成')
             this.createPlotly()
@@ -132,7 +132,7 @@ export default {
         if (
           item.thscode !== this.data[index - 1].thscode || // 保证不会是标的切换
           // dayjs(item.time).format('YYYY-MM-DD') == '2024-02-18' || // 过年回来的一天
-          getDaysBetween(this.data[index - 1].time, item.time) < 5 ||
+          getDaysBetween(this.data[index - 1].time, item.time) < 2 ||
           item.openInterest < 5000 || // 不活跃 // 国际铜成交量不足10000
           item.openInterest > this.data[index - 1].openInterest * 1.3 // 持仓量大幅增加说明是主力合约换月
         ) return
@@ -179,7 +179,7 @@ export default {
 
         // 定义穿过原点 (0,0,0) 的三根线
         const traceXLine = {
-            x: [0, 0.01],
+            x: [0, 0.04],
             y: [0, 0],
             z: [0, 0],
             mode: 'lines',
@@ -192,7 +192,7 @@ export default {
 
         const traceYLine = {
             x: [0, 0],
-            y: [0, 0.01],
+            y: [0, 0.04],
             z: [0, 0],
             mode: 'lines',
             line: {
@@ -205,7 +205,7 @@ export default {
         const traceZLine = {
             x: [0, 0],
             y: [0, 0],
-            z: [0, 0.01],
+            z: [0, 0.04],
             mode: 'lines',
             line: {
                 color: 'rgb(255, 0, 0)', // 红色
