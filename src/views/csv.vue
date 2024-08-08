@@ -254,7 +254,8 @@ export default {
         if (
           item.thscode !== this.data[index - 1].thscode || // 保证不会是标的切换
           // dayjs(item.time).format('YYYY-MM-DD') == '2024-02-18' || // 过年回来的一天
-          getDaysBetween(this.data[index - 1].time, item.time) < 5 ||
+          // getDaysBetween(this.data[index - 1].time, item.time) < 3 || // 周末
+          getDaysBetween(this.data[index - 1].time, item.time) == 3 ||
           item.openInterest < 5000 || // 不活跃 // 国际铜成交量不足10000
           item.openInterest > this.data[index - 1].openInterest * 1.3 // 持仓量大幅增加说明是主力合约换月
         ) return
@@ -266,7 +267,7 @@ export default {
         // 涨大高
         if (item.open>this.data[index - 1].close * (1 + this.jmp*1) // 跳空高开jmp的幅度
         // && this.data[index - 1].close > this.data[index - 1].open *1 // 前一天是上涨 
-        && this.data[index - 1].close > this.data[index - 1].open *(1 + this.lastDay*1) // 但涨幅小于1个点
+        && this.data[index - 1].close > this.data[index - 1].open *(1 + this.lastDay*1)  // 但涨幅小于1个点
         ) {
           // sum += item.close/item.open - 1
           // + 为做多 - 为做空

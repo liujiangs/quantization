@@ -1,8 +1,25 @@
 <template>
   <div>
     止损小于0时代表做多，止损大于0时代表做空<el-button @click="createData">开始计算数据</el-button>
+    <el-form :inline="true">
+      <!-- <el-form-item label="年份过滤">
+        <el-input type="number" v-model="year"></el-input>
+      </el-form-item> -->
+      <el-form-item label="昨日涨幅">
+        <el-input type="number" v-model="lastDay"></el-input>
+      </el-form-item>
+      <el-form-item label="跳空幅度">
+        <el-input type="number" v-model="jmp"></el-input>
+      </el-form-item>
+      <el-form-item label="止损阈值">
+        <el-input type="number" v-model="stop"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="$refs.resDialog.show({lastDay, jmp, stop})">分析数据</el-button>
+      </el-form-item>
+    </el-form>
     <div id="plot"></div>
-    <resDialog ref="resDialog"/>
+    <resDialog ref="resDialog" :data="data"/>
   </div>
 </template>
 
@@ -30,7 +47,10 @@ export default {
       z: [],
       results: [],
       texts: [],
-      colors: []
+      colors: [],
+      lastDay: 0.01,
+      jmp: 0.01,
+      stop: 0.01
     };
   },
 
@@ -66,13 +86,11 @@ export default {
                 ////
                 }, 10000 * (i+5) + 1000 * (j+5) + 100 * (k+5));
                 // }, 1000 * (i+1) + 400 * (j+1) + 100 * (k+1));
-
               }
           }
       }
     },
-    getHighJmp (lastDay, jmp, stop) {
-      console.log(lastDay, jmp, stop)
+    getHighJmp(lastDay, jmp, stop) {
       let profit = 1
       let times = 0
       this.data.forEach((item, index) => {
@@ -132,7 +150,8 @@ export default {
         if (
           item.thscode !== this.data[index - 1].thscode || // 保证不会是标的切换
           // dayjs(item.time).format('YYYY-MM-DD') == '2024-02-18' || // 过年回来的一天
-          getDaysBetween(this.data[index - 1].time, item.time) < 2 ||
+          getDaysBetween(this.data[index - 1].time, item.time) > 2 || // 中间没有放假
+
           item.openInterest < 5000 || // 不活跃 // 国际铜成交量不足10000
           item.openInterest > this.data[index - 1].openInterest * 1.3 // 持仓量大幅增加说明是主力合约换月
         ) return
