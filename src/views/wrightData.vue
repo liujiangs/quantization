@@ -6,8 +6,7 @@
 
 <script>
 // import data from './data.json';
-import data from './101010.json';
-console.log(data)
+// import data from './101010.json';
 
 export default {
   name: 'TestWrightData',

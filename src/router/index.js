@@ -9,11 +9,11 @@ const routes = [
     name: 'home',
     component: () => import('../views/csv.vue')
   },
-  {
-    path: '/down',
-    name: 'down',
-    component: () => import('../views/wrightData.vue')
-  },
+  // {
+  //   path: '/down',
+  //   name: 'down',
+  //   component: () => import('../views/wrightData.vue')
+  // },
   {
     path: '/results',
     name: 'results',
